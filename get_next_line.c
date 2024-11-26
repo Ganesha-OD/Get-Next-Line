@@ -6,13 +6,11 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:30:14 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 12:47:09 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 14:37:03 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-// BUFFER JOINING OPERATION
 
 char *join_buffers(char *existing, char *new_data)
 {
@@ -50,10 +48,6 @@ char *join_buffers(char *existing, char *new_data)
 
     return (combined);
 }
-
-
-
-// READ TO BUFFER: CORE DESIGN
 
 char *read_to_buffer(int fd, char *buffer)
 {
