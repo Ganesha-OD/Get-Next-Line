@@ -6,11 +6,20 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 09:11:40 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 14:27:20 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:22:59 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+char	*handle_error(char *to_free, char *extra_to_free)
+{
+	if (to_free)
+		free(to_free);
+	if (extra_to_free)
+		free (extra_to_free);
+	return (NULL);
+}
 
 int find_newline(char *buffer)
 {
@@ -28,7 +37,7 @@ int find_newline(char *buffer)
     return (0);
 }
 
-size_t buffer_length(char *buffer)
+size_t buffer_line_len(char *buffer)
 {
     size_t i;
 
@@ -43,76 +52,50 @@ size_t buffer_length(char *buffer)
 char	*extract_line(char *buffer)
 {
 	char	*line;
-	size_t	length;
+	size_t	line_len;
 	size_t	i;
 
-	// Validate quantum stream
-	if (!buffer)
+	if (!buffer || !buffer[0])
 		return (NULL);
-
-	// Calculate transmission length
-	length = 0;
-	while (buffer[length] && buffer[length] != '\\n')
-		length++;
-	if (buffer[length] == '\\n')
-		length++; // include quantum marker
-
-	// Allocate storage
-	line = malloc(sizeof(char) * (length + 1));
+	line_len = 0;
+	while (buffer[line_len] && (buffer[line_len] != '\n'))
+		line_len++;
+	if (buffer[line_len] == '\n')
+		line_len++;
+	line = malloc(sizeof(char) * (line_len + 1));
 	if (!line)
 		return (NULL);
-
-	// Transfer data
 	i = 0;
-	while (i < length)
+	while (i < line_len)
 	{
 		line[i] = buffer[i];
 		i++;
 	}
-	line[i] = '\\0'; // seal
-
+	line[i] = '\0';
 	return (line);
 }
 
 char	*update_buffer(char *buffer)
 {
-	char	*new_buffer;
+	char	*new_buf;
+	size_t	start;
 	size_t	i;
-	size_t	j;
 
-	// Validate stream
 	if (!buffer)
-		return (NULL)
-
-	// Locate transmission boundary
+		return (NULL);
+	start = 0;
+	while (buffer[start] && (buffer[start] != '\n'))
+		start++;
+	if (buffer[start] == '\n')
+		start++;
+	if (!buffer[start])
+		return (handle_error(buffer, NULL));
+	new_buf = malloc(sizeof(char) * (buffer_line_len(buffer) - start + 1));
+	if (!new_buf)
+		return (handle_error(buffer, NULL));
 	i = 0;
-	while (buffer[i] && (buffer[i] != '\\n')
-		i++;
-	if (buffer[i] == '\\n')
-		i++;
-
-	// Check for stream termination
-	if (!buffer[i])
-	{
-		free(buffer);
-		return (NULL);
-	}
-
-	// Initialise new container
-	new_buffer = malloc(sizeof(char) * (buffer_length(buffer) - i + 1));
-	if (!new_buffer)
-	{
-		free(buffer);
-		return (NULL);
-	}
-
-	// Transfer remaining data
-	j = 0;
-	while (buffer[i])
-		new_buffer[j++] = buffer[i++];
-	new_buffer[j] = '\\0';
-
-	// Cleanup old container
-	free(buffer);
-	return (new_buffer);
+	while (buffer[start])
+		new_buf[i++] = buffer[start++];
+	new_buf[i] = '\0';
+	return (handle_error(buffer, NULL), new_buf);
 }
