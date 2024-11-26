@@ -6,13 +6,41 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 09:11:40 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 09:19:35 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 12:25:54 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-/* Phase 1: Just function shells */
+/* Find Newline in Buffer */
+int find_newline(char *buffer)
+{
+    size_t i;
+
+    i = 0;
+    if (!buffer)
+        return (0);
+    while (buffer[i])
+    {
+        if (buffer[i] == '\\n')
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
+/* Get Buffer Length */
+size_t buffer_length(char *buffer)
+{
+    size_t i;
+
+    i = 0;
+    if (!buffer)
+        return (0);
+    while (buffer[i])
+        i++;
+    return (i);
+}
 
 char	*read_to_buffer(int fd, char *buffer)
 {
