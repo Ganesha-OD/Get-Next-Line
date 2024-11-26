@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:50:29 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 08:57:48 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 12:45:25 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 // For read
 # include <unistd.h>
+
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 42
 # endif
@@ -34,6 +35,7 @@ char	*update_buffer(char *buffer);
 
 // Memory Operations
 char	*join_buffers(char *s1, char *s2);
-size_t	buffer_len(const char *buffer);
+size_t	buffer_length(char *buffer);
+int		find_newline(char *buffer);
 
 #endif

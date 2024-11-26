@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:30:14 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 12:25:32 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 12:47:09 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ char *join_buffers(char *existing, char *new_data)
         combined[i++] = new_data[j++];
 
     /* Terminate Combined Data */
-    combined[i] = '\\0';
+    combined[i] = '\0';
 
     return (combined);
 }
@@ -83,7 +83,7 @@ char *read_to_buffer(int fd, char *buffer)
             break;
 
         /* Mark End of Received Data */
-        quantum_receiver[bytes_received] = '\\0';
+        quantum_receiver[bytes_received] = '\0';
 
         /* Merge with Existing Data */
         merged_data = join_buffers(buffer, quantum_receiver);
@@ -104,9 +104,6 @@ char *read_to_buffer(int fd, char *buffer)
     free(quantum_receiver);
     return (buffer);
 }
-
-
-
 
 char	*get_next_line(int fd)
 {
