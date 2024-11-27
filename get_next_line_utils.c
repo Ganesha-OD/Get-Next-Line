@@ -6,20 +6,20 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 09:11:40 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 16:55:56 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/27 09:45:27 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*handle_error(char *to_free, char *extra_to_free)
-{
-	if (to_free)
-		free(to_free);
-	if (extra_to_free)
-		free (extra_to_free);
-	return (NULL);
-}
+// char	*handle_error(char *to_free, char *extra_to_free)
+// {
+// 	if (to_free)
+// 		free(to_free);
+// 	if (extra_to_free)
+// 		free (extra_to_free);
+// 	return (NULL);
+// }
 
 int find_newline(char *buffer)
 {
