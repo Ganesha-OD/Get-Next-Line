@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:30:14 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/26 16:23:22 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:13:30 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,28 @@ char *join_buffers(char *existing, char *new_data)
 	return (combined);
 }
 
+char	*process_read(char *buffer, char *temp_buf, ssize_t bytes_read)
+{
+	char	*joined_buf;
+	if (bytes_read < 0)
+		return (handle_error(buffer, temp_buf));
+	if (bytes_read == 0)
+	{
+		if (!buffer || !buffer[0])
+			return (handle_error(buffer, temp_buffer));
+		return (buffer);
+	}
+	temp_buf[bytes_read] = '\0';
+	joined_buf = join_buffers(buffer, temp_buf);
+	if (!joined_buf)
+		return (handle_error(buffer, temp_buf));
+	free(buffer);
+	return (joined_buf);
+}
+
 char *read_to_buffer(int fd, char *buffer)
 {
 	char	*temp_buf;
-	char	*joined_buf;
 	ssize_t	bytes_read;
 
 	temp_buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
@@ -51,20 +69,9 @@ char *read_to_buffer(int fd, char *buffer)
 	while (1)
 	{
 		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
-		if (bytes_read < 0)
-			return (handle_error(buffer, temp_buf));
-		if (bytes_read == 0)
-		{
-			if (!buffer || !buffer[0]) // empty file or no content left
-				return (handle_error(buffer, temp_buf));
-			break; // process remaining buffer content
-		}
-		temp_buf[bytes_read] = '\0';
-		joined_buf = join_buffers(buffer, temp_buf);
-		if (!joined_buf)
-			return (handle_error(buffer, temp_buf));
-		free(buffer);
-		buffer = joined_buf;
+		buffer = process_read(buffer, temp_buf, bytes_read);
+		if (!buffer || (!find_newline(buffer) && bytes_read == 0))
+			break;
 		if (find_newline(buffer))
 			break;
 	}
