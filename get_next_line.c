@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:30:14 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/28 12:09:33 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/12/07 10:35:06 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,29 @@
  * - Frees existing buffer regardless of success
  * - Ensures null-termination of result
  *
- * @note Memory ownership: Takes ownership of existing, new_data remains unchanged
+ * @note Memory ownership: Takes ownership of existing,
+ * 		new_data remains unchanged
  */
 char	*join_buffers(char *existing, char *new_data)
 {
 	char	*combined;
 	char	*ptr;
+	char	*start;
 
+	if (!new_data)
+		return (existing);
 	combined = malloc(sizeof(char)
 			* ((buffer_line_len(existing) + buffer_line_len(new_data)) + 1));
 	if (!combined)
 		return (free(existing), NULL);
 	ptr = combined;
+	start = existing;
 	while (existing && *existing)
 		*ptr++ = *existing++;
-	while (*new_data)
+	while (new_data && *new_data)
 		*ptr++ = *new_data++;
 	*ptr = '\0';
-	free (existing);
+	free (start);
 	return (combined);
 }
 
@@ -63,9 +68,11 @@ char	*join_buffers(char *existing, char *new_data)
  */
 char	*process_read(char *buffer, char *temp_buf, ssize_t bytes_read)
 {
-	if (bytes_read <= 0)
+	if (bytes_read < 0)
+		return (free(buffer), NULL);
+	if (bytes_read == 0)
 	{
-		if (bytes_read < 0 || !buffer || !buffer[0])
+		if (!buffer || !buffer[0])
 			return (NULL);
 		return (buffer);
 	}
@@ -93,16 +100,16 @@ char	*read_to_buffer(int fd, char *buffer)
 	char	*temp_buf;
 	ssize_t	bytes_read;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (free(buffer), NULL);
 	temp_buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!temp_buf)
 		return (free(buffer), NULL);
-	while (1)
+	while (!find_newline(buffer))
 	{
 		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
 		buffer = process_read(buffer, temp_buf, bytes_read);
-		if (!buffer || (!find_newline(buffer) && bytes_read == 0))
-			break ;
-		if (find_newline(buffer))
+		if (!buffer || bytes_read <= 0)
 			break ;
 	}
 	free(temp_buf);

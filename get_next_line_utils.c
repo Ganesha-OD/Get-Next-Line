@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 09:11:40 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/28 12:13:13 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/12/07 11:53:02 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ char	*update_buffer(char *buffer)
 	if (!buffer)
 		return (NULL);
 	start = buffer;
-	while (*start && *start != '\n')
+	while (*start && (*start != '\n'))
 		start++;
 	if (*start == '\n')
 		start++;
