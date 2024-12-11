@@ -6,28 +6,12 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:30:14 by go-donne          #+#    #+#             */
-/*   Updated: 2024/12/07 10:35:06 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/12/11 14:29:20 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-/**
- * @brief Combines existing buffer with new data
- *
- * @param existing Current buffer content (will be freed)
- * @param new_data New data to append (not freed)
- * @return char* New allocated buffer with combined data, or NULL on error
- *
- * @details
- * - Allocates new memory for combined string
- * - Copies existing content (if any) and new data
- * - Frees existing buffer regardless of success
- * - Ensures null-termination of result
- *
- * @note Memory ownership: Takes ownership of existing,
- * 		new_data remains unchanged
- */
 char	*join_buffers(char *existing, char *new_data)
 {
 	char	*combined;
@@ -51,21 +35,6 @@ char	*join_buffers(char *existing, char *new_data)
 	return (combined);
 }
 
-/**
- * @brief Processes the result of a read operation
- *
- * @param buffer Current buffer content
- * @param temp_buf Temporary buffer containing new read data
- * @param bytes_read Number of bytes from last read
- * @return char* Updated buffer or NULL on error/EOF
- *
- * @details
- * - Handles read results: EOF, errors, and successful reads
- * - Null-terminates temp_buf at bytes_read
- * - Combines buffers on successful read
- *
- * @note Does not free temp_buf - caller maintains ownership
- */
 char	*process_read(char *buffer, char *temp_buf, ssize_t bytes_read)
 {
 	if (bytes_read < 0)
@@ -80,21 +49,6 @@ char	*process_read(char *buffer, char *temp_buf, ssize_t bytes_read)
 	return (join_buffers(buffer, temp_buf));
 }
 
-/**
- * @brief Reads from file descriptor into buffer until newline or EOF
- *
- * @param fd File descriptor to read from
- * @param buffer Current buffer content
- * @return char* Updated buffer with new data, or NULL on error/EOF
- *
- * @details
- * - Allocates temporary buffer for reading
- * - Performs repeated reads until newline or EOF
- * - Manages memory for temporary buffer
- * - Combines read data with existing buffer
- *
- * @note Takes ownership of input buffer, returns new or NULL
- */
 char	*read_to_buffer(int fd, char *buffer)
 {
 	char	*temp_buf;
@@ -116,23 +70,6 @@ char	*read_to_buffer(int fd, char *buffer)
 	return (buffer);
 }
 
-/**
- * @brief Reads a line from a file descriptor
- *
- * @param fd File descriptor to read from
- * @return char* Newly allocated string containing the line, or NULL on error/EOF
- *
- * @details
- * - Returns a line ending in newline unless it's the last line without one
- * - Manages a static buffer between calls to maintain state
- * - Handles memory allocation for returned line
- * - Supports multiple file descriptors through static buffer management
- *
- * @note
- * - Caller is responsible for freeing the returned string
- * - Returns NULL on EOF, error, or invalid parameters
- * - Thread-unsafe due to static buffer
- */
 char	*get_next_line(int fd)
 {
 	static char	*buffer;
@@ -149,3 +86,127 @@ char	*get_next_line(int fd)
 	buffer = update_buffer(buffer);
 	return (line);
 }
+
+/*
+
+#include "get_next_line.h" // For get_next_line
+#include <fcntl.h>  // For open, O_RDONLY
+#include <stdio.h>  // For printf
+
+// Compilation command:
+// cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 -g get_next_line.c
+//		get_next_line_utils.c test_gnl.c -o gnl_test
+// or: cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 *.c
+
+void test_case(const char *test_name, const char *file_path)
+{
+    int fd;
+    char *line;
+    int line_count = 0;
+
+    printf("\nTesting: %s\n", test_name);
+
+	// Open file: establish read-only connection (typically assigns lowest
+	// available fd, usually starting at 3 if no other files are open)
+    fd = open(file_path, O_RDONLY);
+
+    if (fd < 0)
+	{
+        printf("Error: Could not open %s\n", file_path);
+        return;
+    }
+
+	// Main testing loop:
+    while ((line = get_next_line(fd))) // Get lines until NULL returned
+    {
+        printf("Line %d (raw): ", ++line_count);
+		 // Print each character, showing \n symbolically
+        char *ptr = line;
+        while (*ptr)
+        {
+            if (*ptr == '\n')
+                printf("\\n");
+            else
+                printf("%c", *ptr);
+            ptr++;
+        }
+        printf("\n");  // New line for formatting
+        free(line);
+    }
+    close(fd); // Clean up - release the file descriptor
+    printf("Total lines: %d\n", line_count);
+}
+
+void	test_invalid_fd(void)
+{
+	char	*line;
+
+	// Showing NULL symbolically (explicit when gnl returns NULL)
+
+	// Negative fd: guaranteed invalid
+	line = get_next_line(-1);
+	printf("Result with fd=-1: %s\n", line ? line: "NULL");
+
+	// High fd: most likely invalid (unopened):
+	// could however theoretically be in use & valid, hence freeing)
+    line = get_next_line(101);
+    printf("Result with fd=101: %s\n", line ? line : "NULL");
+}
+
+void test_stdin(void)
+{
+    char *line;
+    int line_count = 0;
+
+    while ((line = get_next_line(0)))
+    {
+        printf("Line %d: ", ++line_count);
+        char *ptr = line;
+        while (*ptr)
+        {
+            if (*ptr == '\n')
+                printf("\\n");
+            else
+                printf("%c", *ptr);
+            ptr++;
+        }
+        printf("\n");
+        free(line);
+    }
+    printf("\nTotal lines read from stdin: %d\n", line_count);
+}
+
+int main(void)
+{
+	printf("\n=========================================\n");
+    printf("GET_NEXT_LINE TESTING SUITE\n");
+    printf("=========================================\n");
+	printf("BUFFER_SIZE: %d\n", BUFFER_SIZE);
+    printf("Output Format: Raw output shown with \\n
+			representing actual newlines\n");
+    printf("=========================================\n");
+
+	printf("\n\n1: BASIC CASES\n");
+    printf("Testing standard files with various content patterns\n");
+	test_case("Basic Test", "test_basic.txt");
+	test_case("Long Lines", "test_long.txt");
+    test_case("Empty File", "test_empty.txt");
+
+	printf("\n\n\n2: EDGE CASES\n");
+    printf("Testing boundary conditions and special cases\n");
+	test_case("No Newline", "test_no_newline.txt");
+	test_case("Multiple Empty Lines", "test_empty_lines.txt");
+
+	printf("\n\n\n3: INVALID FD TESTS\n");
+	printf("Testing behavior with invalid file descriptors\n");
+	test_invalid_fd();
+
+	printf("\n\n\n4: STANDARD INPUT TEST\n");
+	printf("Testing stdin (fd 0). Enter text lines:\n");
+    printf("- Press Enter after each line\n");
+    printf("- Press Ctrl+D to finish\n\n");
+	test_stdin();
+
+    return (0);
+}
+*/

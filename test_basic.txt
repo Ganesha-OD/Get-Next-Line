@@ -1,5 +1,0 @@
-This is a normal line
-This line ends with a newline
-
-This comes after an empty line
-This is the last line with no newline at end

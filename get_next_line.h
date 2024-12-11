@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 12:50:29 by go-donne          #+#    #+#             */
-/*   Updated: 2024/11/28 12:05:51 by go-donne         ###   ########.fr       */
+/*   Updated: 2024/12/10 15:02:45 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ char	*join_buffers(char *existing, char *new_data);
 char	*process_read(char *buffer, char *temp_buf, ssize_t bytes_read);
 char	*read_to_buffer(int fd, char *buffer);
 
-/* String utility */
+/* String operations */
 int		find_newline(char *buffer);
 size_t	buffer_line_len(char *buffer);
 
